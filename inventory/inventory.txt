@@ -1,0 +1,8 @@
+#can setup ssh keys for automatic authentication instead of using ssh login
+
+[target_machines]
+192.168.6.156 ansible_user=<user> ansible_ssh_pass=<password>
+192.168.6.154 ansible_user=<user> ansible_ssh_pass=<password>
+
+[controller]
+192.168.6.153 ansible_user=<user> ansible_ssh_pass=<password>

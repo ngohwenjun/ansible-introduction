@@ -1,6 +1,9 @@
 ---
+#configuration file paths for compliance check
 sshd_config_path: "/etc/ssh/sshd_config"
 login_defs_path: "/etc/login.defs"
 passwd_path: "/etc/passwd"
-logfile_tmp: "/home/user1/log/ansible_log/curr_check.txt"
-logfile_list: "/home/user1/log/ansible_log/failed_list.txt"
+
+#configure dir for logfiles
+logfile_tmp: "<dir_for_tmp_logfile_logging_output>/curr_check.txt"
+logfile_list: "<dir_for_tmp_logfile_logging_failed_addrs>/failed_list.txt"

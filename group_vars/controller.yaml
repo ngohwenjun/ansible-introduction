@@ -1,7 +1,12 @@
 ---
-logfile_tmp: "/home/user1/log/ansible_log/curr_check.txt"
-logfile_list: "/home/user1/log/ansible_log/failed_list.txt"
-logfile_path: "/home/user1/log/ansible_log/compliance_check-{{ ansible_date_time.weekday }}_{{ ansible_date_time.date }}_{{ansible_date_time.time }}"
-logfile_dir: "/home/user1/log/ansible_log"
+#configuration for logging
+logfile_tmp: "<dir_for_tmp_logfile_logging_output>"
+logfile_list: "<dir_for_tmp_logfile_logging_failed_addrs>"
+logfile_dir: "<dir_for_storing_logs>"
+
+#naming logfile with day/date/time for purpose of rotating logs on n+7
+logfile_path: "<dir_for_storing_logs>/compliance_check-{{ ansible_date_time.weekday }}_{{ ansible_date_time.date }}_{{ansible_date_time.time }}"
 logfile_ctr: 4
-shellcmd_txt: "/home/user1/project/playbook/setSysAcctLogin.txt"
+
+#text file for remediation command on system accounts to have non-login shell
+shellcmd_txt: "<project_dir>/playbooks/setSysAcctLogin.txt"
