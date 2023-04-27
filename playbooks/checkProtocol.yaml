@@ -1,0 +1,13 @@
+#rhel7.9 only supports protocol 2, sshd_config for protocol is ignored
+---
+- name: check protocol 2
+  hosts: target_machines
+  tasks:
+    - name: declare compliance
+      local_action:
+        module: lineinfile
+        path: "{{ logfile_tmp }}"
+        line: "<PASS> {{ curr_machine }} SSH Protocol is set to 2"
+        insertbefore: EOF
+        create: yes
+

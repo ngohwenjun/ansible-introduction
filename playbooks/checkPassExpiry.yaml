@@ -1,0 +1,63 @@
+---
+- name: Check pass expiry
+  hosts: target_machines
+  tasks:
+    - name: Read login.defs file
+      slurp:
+        src: "{{ login_defs_path }}"
+      register: login_defs
+    
+    - name: Get PASS_MAX_DAYS config
+      set_fact:
+        max_days: "{{ login_defs.content | b64decode | regex_findall('(?m)^\\s*PASS_MAX_DAYS\\s+([0-9].*)') }}"
+        pass_days: 99999
+        curr_machine: "{{ ansible_host }}"
+    
+    - name: debug result
+      when: max_days|length > 0
+      debug:
+        msg: "max_days is {{ max_days[0] }}"
+
+    - name: extract value
+      when: max_days|length > 0
+      set_fact:
+        config: "{{ max_days[0] | regex_findall('\\A[1-9][0-9]*\\s*\\Z') }}"
+    
+    - name: extract value
+      when: config|length > 0
+      set_fact:
+        pass_days: "{{ config[0] }}"
+
+    - name: debug result
+      when: max_days|length > 0
+      debug:
+        msg: "pass_days is {{ pass_days }}"
+
+    - name: Log compliance passed
+      when: pass_days|int <= 90
+      local_action:
+        module: lineinfile
+        path: "{{ logfile_tmp }}"
+        line: "<PASS> {{ curr_machine }} Password expiry less than 90days"
+        insertbefore: EOF
+        create: yes
+    
+    - name: Log compliance failed
+      when: pass_days|int > 90
+      local_action:
+        module: lineinfile
+        path: "{{ logfile_tmp }}"
+        line: "<FAILED> {{ curr_machine }} Password expiry more than 90days. Config is read as: {{ max_days[0] }}"
+        insertbefore: EOF
+        create: yes
+    
+    - name: Log machine addr as compliance failed
+      when: pass_days|int > 90
+      local_action:
+        module: lineinfile
+        path: "{{ logfile_list }}"
+        line: "{{ curr_machine }}"
+        insertbefore: EOF
+        create: yes
+        state: present
+    

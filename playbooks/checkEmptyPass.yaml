@@ -1,0 +1,69 @@
+---
+- name: Check Empty Pass config
+  hosts: target_machines
+  tasks:
+    - name: Read sshd_config file
+      slurp:
+        src: "{{ sshd_config_path }}"
+      register: sshd_config
+    
+    - name: Get PermitEmptyPasswords line
+      set_fact:
+        empty_pass_disabled: "{{ sshd_config.content | b64decode | regex_findall('(?im)^\\s*PermitEmptyPasswords\\s+(.*)') }}"
+        cond_1: ""
+        cond_2: ""
+        curr_machine: "{{ ansible_host }}"
+    
+    - name: debug result
+      when: empty_pass_disabled|length > 0
+      debug:
+        msg: "empty_pass is {{ empty_pass_disabled[0] }}"
+
+#permitemptypasswords value is case sensitive    
+    - name: handle edge case for value & comments after
+      when: empty_pass_disabled|length > 0
+      set_fact:
+        cond_1: "{{ empty_pass_disabled[0] | regex_findall('\\Ayes\\s*\\#') }}"
+    
+    - name: handle normal case for value & white space after
+      when: empty_pass_disabled|length > 0
+      set_fact:
+        cond_2: "{{ empty_pass_disabled[0] | regex_findall('\\Ayes\\s*\\Z') }}"
+    
+    - name: debug result cond_2
+      when: cond_2|length > 0
+      debug:
+        msg: "var is {{ cond_2[0] }}"
+    
+    - name: debug result cond_1
+      when: cond_1|length > 0
+      debug:
+        msg: "var is {{ cond_1[0] }}"
+    
+    - name: Log compliance failed
+      when: cond_2|length > 0 or cond_1|length > 0
+      local_action:
+        module: lineinfile   
+        path: "{{ logfile_tmp }}"
+        line: "<FAILED> {{ curr_machine }} Empty passwords is enabled. Config is read as: {{ empty_pass_disabled[0] }}"
+        insertbefore: EOF
+        create: yes
+    
+    - name: Log machine addr as compliance failed
+      when: cond_2|length > 0 or cond_1|length > 0
+      local_action:
+        module: lineinfile
+        path: "{{ logfile_list }}"
+        line: "{{ curr_machine }}"
+        insertbefore: EOF
+        create: yes
+    
+    - name: Log compliance passed
+      when: cond_2|length == 0 and cond_1|length == 0
+      local_action:
+        module: lineinfile   
+        path: "{{ logfile_tmp }}"
+        line: "<PASS> {{ curr_machine }} Empty passwords is disabled"
+        insertbefore: EOF
+        create: yes
+    

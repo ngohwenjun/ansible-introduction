@@ -1,0 +1,41 @@
+---
+- name: Send mail when compliance failed
+  hosts: controller
+  tasks:
+    - name: read file contents
+      set_fact:
+        list_failed: "{{ lookup('file', '{{ logfile_list }}') }}"
+        shell_cmd: "{{ lookup('file', '{{ shellcmd_txt }}') }}"
+
+    - name: count number of failed machines
+      set_fact:
+        count: "{{ list_failed | regex_findall('(?m)(.+)') |length  }}"
+
+    - name: Send email
+      when: count > 0
+      mail:
+        host: smtp.office365.com
+        port: 587
+        username: wenjun3211@outlook.com
+        password: e5d4c3b2a1
+        from: wenjun3211@outlook.com
+        to: 123wenjun456@gmail.com
+        subject: "{{ count }} out of {{ groups['target_machines']|length }} machines failed compliance"
+        attach:
+        - "{{ logfile_tmp }}"
+        body: |
+          Failed compliance check at {{ ansible_date_time.weekday }}_{{ ansible_date_time.date}}_{{ ansible_date_time.time }}
+          The compliance logs are attached in this email
+
+          These machines failed the compliance check:
+          {{ list_failed }}
+
+          Remediate the configurations as follows:
+          Set 'PermitRootLogin no' in /etc/ssh/sshd_config file.
+
+          Set 'PermitEmptyPasswords no' in /etc/ssh/sshd_config file
+
+          Set 'PASS_MAX_DAYS 90' in /etc/login.defs file
+
+          Run command to set all system accounts to non-login shell
+          {{ shell_cmd }}

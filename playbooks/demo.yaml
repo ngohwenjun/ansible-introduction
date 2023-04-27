@@ -1,0 +1,5 @@
+---
+- name: playbook to call a task
+  hosts: <host or hostgroups>
+  tasks:
+    include_tasks: <file path to tasks>

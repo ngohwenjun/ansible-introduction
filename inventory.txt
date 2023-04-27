@@ -1,0 +1,9 @@
+[target_machines]
+192.168.6.156 ansible_user=user1 ansible_ssh_pass=redhatuser
+192.168.6.154 ansible_user=user1 ansible_ssh_pass=redhatuser
+
+#not able to write well into local logfile atm due to a known-issue for ansible when using delegate_to:localhost for writing log files
+#https://github.com/ansible/proposals/issues/113
+
+[controller]
+192.168.6.153 ansible_user=user1 ansible_ssh_pass=redhatuser

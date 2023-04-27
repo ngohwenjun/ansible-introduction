@@ -1,0 +1,15 @@
+---
+#add some comments to indicate the structure of the playbook
+#
+#compliance check
+- import_playbook: playbooks/checkRootLogin.yaml
+- import_playbook: playbooks/checkEmptyPass.yaml
+- import_playbook: playbooks/checkSystemAcct.yaml
+- import_playbook: playbooks/checkPassExpiry.yaml
+- import_playbook: playbooks/checkProtocol.yaml
+
+#do email alert
+- import_playbook: playbooks/mail.yaml
+
+#do logfile rotation for n+7, up to n logfiles defined in group_vars/controller.yaml
+- import_playbook: playbooks/rotateLogs.yaml

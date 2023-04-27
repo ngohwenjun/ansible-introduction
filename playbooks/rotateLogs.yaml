@@ -1,0 +1,45 @@
+---
+- name: Clean up log files
+  hosts: controller
+  tasks:
+    - name: copy tmp into local file
+      ansible.builtin.copy:
+        src: "{{ logfile_tmp }}"
+        dest: "{{ logfile_path }}"
+    
+    - name: remove tmp file
+      ansible.builtin.file:
+        path: "{{ logfile_tmp }}"
+        state: absent
+    
+    - name: remove list file
+      ansible.builtin.file:
+        path: "{{ logfile_list }}"
+        state: absent
+    
+    - name: Get list of files matching pattern in directory
+      find:
+        paths: "{{ logfile_dir }}"
+        patterns: "*{{ ansible_date_time.weekday }}*"
+        file_type: file
+        follow: no
+      register: matching_files
+    
+    - name: Get file stats for matching files
+      stat:
+        path: "{{ item.path }}"
+      loop: "{{ matching_files.files }}"
+      register: file_stats
+    
+    - name: Sort file stats by modification time
+      set_fact:
+        sorted_files: "{{ file_stats.results | sort(attribute='stat.mtime') }}"
+    
+    - name: Delete excess files
+      file:
+        path: "{{ item.stat.path }}"
+        state: absent
+      loop: "{{ sorted_files[:-logfile_ctr] }}"
+      when: sorted_files|length > logfile_ctr|int
+
+

@@ -1,0 +1,70 @@
+---
+- name: Check root login config
+  hosts: target_machines
+  tasks:
+    - name: Read file_content file
+      slurp:
+        src: "{{ sshd_config_path }}"
+      register: file_content
+    
+    - name: Get PermitRootLogin config line
+      set_fact:
+        root_login_disabled: "{{ file_content.content | b64decode | regex_findall('(?im)^\\s*PermitRootLogin\\s+(.*)') }}"
+        cond_1: ""
+        cond_2: ""
+        curr_machine: "{{ ansible_host }}"
+    
+    - name: debug result
+      when: root_login_disabled|length > 0
+      debug:
+        msg: "var is {{ root_login_disabled[0] }}"
+
+#root login value is case insensitive    
+    - name: cond1 case for value & comments after
+      when: root_login_disabled|length > 0
+      set_fact:
+        cond_1: "{{ root_login_disabled[0] | regex_findall('\\A(?i)no\\s*\\#') }}"
+    
+    - name: cond2 normal case for value & white space after
+      when: root_login_disabled|length > 0
+      set_fact:
+        cond_2: "{{ root_login_disabled[0] | regex_findall('\\A(?i)no\\s*\\Z') }}"
+    
+    - name: debug cond_1
+      when: cond_1|length > 0
+      debug:
+        msg: "cond_1 is {{ cond_1 }}"
+    
+    - name: debug cond_2
+      when: cond_2|length > 0
+      debug:
+        msg: "cond_2 is {{ cond_2 }}"
+    
+    - name: Log compliance passed
+      when: cond_2|length > 0 or cond_1|length > 0
+      local_action:
+        module: lineinfile
+        path: "{{ logfile_tmp }}"
+        line: "<PASS> {{ curr_machine }} Root login is disabled"
+        insertbefore: EOF
+        create: yes
+    
+    - name: Log compliance failed
+      when: cond_2|length == 0 and cond_1|length == 0
+      local_action:
+        module: lineinfile
+        path: "{{ logfile_tmp }}"
+        line: "<FAILED> {{ curr_machine }} Root login is enabled. Config is read as: {{ root_login_disabled[0] }}"
+        insertbefore: EOF
+        create: yes
+
+    - name: Log machine addr on compliance failed
+      when: cond_2|length == 0 and cond_1|length == 0
+      local_action:
+        module: lineinfile
+        path: "{{ logfile_list }}"
+        line: "{{ curr_machine }}"
+        insertbefore: EOF
+        create: yes
+        state: present
+

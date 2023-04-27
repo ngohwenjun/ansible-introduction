@@ -1,0 +1,60 @@
+---
+- name: check System Acct
+  hosts: target_machines
+  tasks:
+    - name: Parse /etc/passwd
+      set_fact:
+        passwd_entries: "{{ lookup('file', '{{ passwd_path }}').splitlines() }}"
+        sysuidmax: 999
+        failed: false
+        curr_machine: "{{ ansible_host }}"
+        user_list: []
+    
+    - name: debug passwd_entries
+      debug:
+        msg: "passwd_entries: {{ passwd_entries }}"
+    
+    - name: debug loop control
+      loop: "{{ passwd_entries }}"
+      loop_control:
+        loop_var: line
+      debug:
+        msg: "line is: {{ line.split(':') }}"
+    
+    - name: Check for login shells in system accounts
+      loop: "{{ passwd_entries }}"
+      loop_control:
+        loop_var: line
+      when: "line.split(':')[2]|int <= sysuidmax|int and line.split(':')[0] != 'root' and line.split(':')[0] != 'sync' and line.split(':')[0] != 'halt' and line.split(':')[0] != 'shutdown' and line.split(':')[0]|regex_search('^\\+.*\\Z') == None and line.split(':')[6] != '/bin/false' and line.split(':')[6] != '/sbin/nologin' and line.split(':')[6] != '/usr/sbin/nologin'"
+      set_fact:
+        failed: true
+        user_list: "{{ line.split(':')[0] + [user_list] }}"
+    
+    - name: Log compliance passed
+      when: not failed
+      local_action:
+        module: lineinfile
+        path: "{{ logfile_tmp }}"
+        line: "<PASS> {{ curr_machine }} System accounts are non-login"
+        insertbefore: EOF
+        create: yes
+    
+    - name: Log compliance failed
+      when: failed
+      local_action:
+        module: lineinfile
+        path: "{{ logfile_tmp }}"
+        line: "<FAILED> {{ curr_machine }} These system accts have login shell: {{ user_list }}"
+        insertbefore: EOF
+        create: yes
+    
+    - name: Log machine addr as compliance failed
+      when: failed
+      local_action:
+        module: lineinfile
+        path: "{{ logfile_list }}"
+        line: "{{ curr_machine }}"
+        insertbefore: EOF
+        create: yes
+        state: present
+    
