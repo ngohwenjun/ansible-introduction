@@ -4,4 +4,4 @@ logfile_list: "/home/user1/log/ansible_log/failed_list.txt"
 logfile_path: "/home/user1/log/ansible_log/compliance_check-{{ ansible_date_time.weekday }}_{{ ansible_date_time.date }}_{{ansible_date_time.time }}"
 logfile_dir: "/home/user1/log/ansible_log"
 logfile_ctr: 4
-shellcmd_txt: "/home/user1/project/playbook/setSysAcctLogin.txt"
+shellcmd_txt: "/home/user1/project/playbooks/setSysAcctLogin.txt"

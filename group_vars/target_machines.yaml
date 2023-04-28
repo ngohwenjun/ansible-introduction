@@ -2,5 +2,6 @@
 sshd_config_path: "/etc/ssh/sshd_config"
 login_defs_path: "/etc/login.defs"
 passwd_path: "/etc/passwd"
-logfile_tmp: "/home/user1/log/ansible_log/curr_check.txt"
+logfile_tmp: "/home/user1/log/ansible_log/tmp_{{ curr_machine }}"
+#logfile_tmp: "/home/user1/log/ansible_log/curr_check.txt"
 logfile_list: "/home/user1/log/ansible_log/failed_list.txt"
