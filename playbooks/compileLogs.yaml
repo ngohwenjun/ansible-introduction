@@ -1,0 +1,31 @@
+---
+- name: Compile all logfiles with tmp_*
+  hosts: controller
+  tasks:
+    - name: Get list of all files with tmp_* name
+      ansible.builtin.find:
+        paths: "{{ logfile_dir }}"
+        patterns: "tmp_*"
+      register: tmp_file_list
+
+    - name: debug list size
+      debug:
+        msg: "list size is: {{ tmp_file_list.matched }}"
+
+    - name: Loop read all files and put into a tmp logfile
+      loop: "{{ tmp_file_list.files }}"
+      loop_control:
+        loop_var: curr_file
+      lineinfile:
+        dest: "{{ logfile_tmp }}"
+        line: "{{ lookup('file', '{{ curr_file.path }}') }}\n"
+        create: true
+        insertafter: EOF
+
+    - name: Loop remove all tmp_* files
+      loop: "{{ tmp_file_list.files }}"
+      loop_control:
+        loop_var: curr_file
+      ansible.builtin.file:
+        path: "{{ curr_file.path }}"
+        state: absent

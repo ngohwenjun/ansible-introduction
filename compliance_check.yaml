@@ -8,6 +8,9 @@
 - import_playbook: playbooks/checkPassExpiry.yaml
 - import_playbook: playbooks/checkProtocol.yaml
 
+#compile logs from all machines into 1 file
+- import_playbook: playbooks/compileLogs.yaml
+
 #do email alert
 - import_playbook: playbooks/mail.yaml
 
