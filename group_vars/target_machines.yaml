@@ -5,5 +5,5 @@ login_defs_path: "/etc/login.defs"
 passwd_path: "/etc/passwd"
 
 #configure dir for logfiles
-logfile_tmp: "<dir_for_tmp_logfile_logging_output>/curr_check.txt"
+logfile_tmp: "<dir_for_tmp_logfile_logging_output>/tmp_{{ curr_machine }}"
 logfile_list: "<dir_for_tmp_logfile_logging_failed_addrs>/failed_list.txt"
