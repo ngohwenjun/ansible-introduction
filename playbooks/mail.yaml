@@ -14,12 +14,12 @@
     - name: Send email
       when: count > 0
       mail:
-        host: smtp.office365.com
-        port: 587
-        username: wenjun3211@outlook.com
-        password: e5d4c3b2a1
-        from: wenjun3211@outlook.com
-        to: 123wenjun456@gmail.com
+        host: <your-smtp-host>
+        port: <smtp port 587>
+        username: <email username>
+        password: <password>
+        from: <sender email>
+        to: <receipient email>
         subject: "{{ count }} out of {{ groups['target_machines']|length }} machines failed compliance"
         attach:
         - "{{ logfile_tmp }}"
