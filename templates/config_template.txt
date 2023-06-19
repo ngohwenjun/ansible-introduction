@@ -1,0 +1,15 @@
+#template for yml file
+yaml_var1: {{ yaml_var1 }}
+{{ yaml_var2_name }}: {{ yaml_var2 }}
+{{ yaml_var3 | default('var3_default_name') }}: {{ yaml_var3_value | default('var3 uses default value') }}
+
+#template for json
+{
+  "json_var1": "{{ json_var1 }}"
+  "{{ json_var2_name }}": "{{ json_var2 }}"
+}
+
+#template for shell script
+#!/bin/bash
+{{ shell_cmd }}
+

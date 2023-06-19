@@ -1,0 +1,10 @@
+#variable values
+yaml_var1: more custom string
+yaml_var2: 8081
+yaml_var2_name: http-port
+
+json_var1: some custom string
+json_var2: 8080
+json_var2_name: http-port
+
+shell_cmd: echo 'some custom echo msg?'

@@ -1,0 +1,9 @@
+---
+- name: Show case on how to use template module with group_vars
+  hosts: templates
+  tasks:
+    - name: Use template module to copy a config template
+      template:
+        src: ./templates/config_template.txt
+        dest: /home/user/config.yaml
+  
