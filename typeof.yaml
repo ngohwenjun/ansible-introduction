@@ -1,0 +1,19 @@
+---
+- name: playbook example for checking a variable type
+  hosts: localhost
+  tasks:
+    - name: set variables
+      set_fact:
+        var1: "some string"
+        var2: 90.9
+        var3: 1000
+        
+    - name: debug var1 reflected as 'str'
+      debug:
+        msg: "var1 type is: {{var1|from_yaml|type_debug}}"
+    - name: debug var2 reflected as 'float'
+      debug:
+        msg: "var2 type is: {{var2|from_yaml|type_debug}}"
+    - name: debug var3 reflected as 'int'
+      debug:
+        msg: "var3 type is: {{var3|from_yaml|type_debug}}"
