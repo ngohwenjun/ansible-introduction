@@ -1,0 +1,14 @@
+---
+- name: playbook example for exiting a playbook
+  hosts: localhost
+  tasks:
+    - name: Try exit from playbook with false condition
+      meta: end_play
+      when: false #this is where you write your conditional statement
+      
+    - name: Exit from playbook
+      meta: end_play
+      
+    - name: Dead code, should not reach here
+      debug:
+        msg: "This is a task written with deadcode"
